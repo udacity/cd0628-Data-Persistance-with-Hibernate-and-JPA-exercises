@@ -1,0 +1,25 @@
+# Application configuration for Module 5: Advanced Entity Mappings
+# Uses Hibernate's DDL generation so the SchemaInspectionTest can verify
+# the generated schema matches expectations for embeddables, inheritance,
+# and the Money attribute converter.
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/banking
+    username: banking
+    password: banking
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create         # Hibernate generates; the test inspects it
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        hbm2ddl.show-detail: true
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.tool.schema: DEBUG

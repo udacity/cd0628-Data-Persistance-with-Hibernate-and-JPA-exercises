@@ -1,0 +1,38 @@
+# Application configuration for Module 6: Second-Level Cache
+# TODO: uncomment the cache section and add @Cache(usage = READ_WRITE) on Product.
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/banking
+    username: banking
+    password: banking
+    driver-class-name: org.postgresql.Driver
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        format_sql: true
+        generate_statistics: true
+        # TODO: enable second-level cache (uncomment and complete):
+        # cache:
+        #   use_second_level_cache: true
+        #   region:
+        #     factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
+        # javax.cache.provider: org.ehcache.jsr107.EhcacheCachingProvider
+        # javax.cache.uri: classpath:ehcache.xml
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.cache: DEBUG
+    org.hibernate.stat: DEBUG

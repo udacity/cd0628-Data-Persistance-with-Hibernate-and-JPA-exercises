@@ -1,0 +1,21 @@
+# Application configuration for Module 1: JDBC + HikariCP
+# This module uses Spring Boot only for bootstrapping and schema loading.
+# The learner configures HikariCP explicitly in HikariConfigFactory.
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/banking
+    username: banking
+    password: banking
+    driver-class-name: org.postgresql.Driver
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+
+logging:
+  level:
+    com.zaxxer.hikari: INFO
+    com.zaxxer.hikari.HikariConfig: DEBUG
