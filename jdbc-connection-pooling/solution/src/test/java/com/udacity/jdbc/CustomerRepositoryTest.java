@@ -9,16 +9,13 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 /**
  * Tests for CustomerRepositoryImpl.
  *
- * These tests are pre-written and currently FAIL until you complete
- * TODO 1 (findById) and TODO 2 (batchInsert) in CustomerRepositoryImpl.java.
- *
- * No TODOs here. Just run the tests after completing the repository.
+ * Solution version - all tests pass against the completed
+ * implementation.
  */
-@SpringBootTest
+@SpringBootTest(classes = Application.class)
 class CustomerRepositoryTest {
 
     @Autowired
