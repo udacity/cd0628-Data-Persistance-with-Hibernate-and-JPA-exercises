@@ -1,39 +1,70 @@
 # Exercise: Wire and Tune a HikariCP Data Source
 
-## What You'll Build
+## Overview
 
-Complete a partly-built JDBC data access layer: implement two repository
-methods, fill in four HikariCP config values, and confirm pool tuning
-makes a measurable throughput difference.
+Complete a partly-built JDBC data access layer and tune a HikariCP
+connection pool. You'll implement two repository methods, set four pool
+configuration values, and run a benchmark that compares pool sizes
+under concurrent load.
 
-## Requirements
+## Exercise Instructions
 
-- Implement findById and batchInsert in CustomerRepositoryImpl using
-  PreparedStatement with try-with-resources
-- Set four explicit values in HikariConfigFactory: maximumPoolSize,
-  connectionTimeout, idleTimeout, maxLifetime
-- The provided BenchmarkRunner exercises findById under 20 threads
-  twice (pool=2, then pool=10) and prints throughput for both
+Open the starter project and work through the TODOs in two files.
 
-## Starter Code
+### Part 1: CustomerRepositoryImpl
 
-- pom.xml, schema, seed data, Customer POJO, repository interface
-  (all complete)
-- CustomerRepositoryImpl with create, update, delete already done —
-  only findById and batchInsert have TODOs
-- HikariConfigFactory with 4 TODOs
-- BenchmarkRunner is complete
-- Tests are pre-written and currently fail
+Open `CustomerRepositoryImpl.java`. The `create`, `update`, and `delete`
+methods are already implemented as reference. Implement the two
+remaining methods.
 
-## Verification
+**TODO 1: Implement `findById`**
+Select by id, map the row using the provided `mapRow` helper, and return
+an `Optional<Customer>`. Use try-with-resources for Connection,
+PreparedStatement, and ResultSet.
 
-- All repository tests pass
-- BenchmarkRunner prints throughput for both pool sizes
-- pool=10 outperforms pool=2 under concurrent load
+**TODO 2: Implement `batchInsert`**
+Use the same INSERT SQL as `create()`. Loop the list calling
+`addBatch()`, then call `executeBatch()` once. Looping single inserts
+is roughly 10x slower.
+
+### Part 2: HikariConfigFactory
+
+Open `HikariConfigFactory.java`. JDBC URL and credentials are already
+wired. Fill in the four pool settings.
+
+**TODO 3: Call `setMaximumPoolSize`**
+Use the parameter passed into `createConfig`. The benchmark calls this
+method twice with different sizes (2 and 10) so it can compare them.
+
+**TODO 4: Call `setConnectionTimeout` (milliseconds)**
+Controls how long a thread waits for a connection before failing.
+Start with 30_000 (30 seconds).
+
+**TODO 5: Call `setIdleTimeout` (milliseconds)**
+Controls how long idle connections stay open before being released.
+Start with 600_000 (10 minutes).
+
+**TODO 6: Call `setMaxLifetime` (milliseconds)**
+Maximum lifetime of any single connection. Start with 1_800_000
+(30 minutes).
+
+## Deliverable
+
+All tests pass, and `BenchmarkRunner` prints throughput for both pool
+configurations. You should see higher throughput at `pool=10` than at
+`pool=2` under 20 concurrent threads.
+
+## What's Included
+
+- `CustomerRepositoryImpl.java` with TODOs 1 and 2
+- `HikariConfigFactory.java` with TODOs 3-6
+- `BenchmarkRunner.java`, complete, runs automatically on startup
+- `CustomerRepositoryTest.java`, pre-written
+- `schema.sql` and `data.sql` for the customer table
 
 ## Common Mistakes
 
-- Manual close() instead of try-with-resources
-- Looping single inserts instead of executeBatch
-- Setting maximumPoolSize=50 "to be safe"
-- Catching SQLException with an empty block
+- **`findById` empty for valid ids:** missing `rs.next()` before reading
+- **Batch not faster than a loop:** opening Connection inside the loop
+- **"Pool exhausted" errors:** `connectionTimeout` too low for the load
+- **Leaked connection warnings:** missing try-with-resources somewhere

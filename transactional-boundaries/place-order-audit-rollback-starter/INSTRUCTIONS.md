@@ -1,52 +1,86 @@
 # Exercise: Transactional placeOrder with Audit That Survives Rollback
 
-## What You'll Build
+## Overview
 
-A multi-step placeOrder service method that creates an order, decrements
-inventory, and (simulated) charges a payment gateway — all atomic. Plus
-an audit log call that uses REQUIRES_NEW so audit rows persist even
-when the main transaction rolls back.
+A multi-step `placeOrder` service method that saves an order, decrements
+inventory, and charges a (simulated) payment gateway — all atomic. Plus
+an audit log call that uses `Propagation.REQUIRES_NEW` so audit rows
+persist even when the main transaction rolls back. A pre-written test
+verifies both the happy path and the rollback-with-surviving-audit
+scenario.
 
-## Requirements
+## Exercise Instructions
 
-- OrderService.placeOrder is @Transactional and performs:
-  1. Save the new Order
-  2. Decrement the matching Product's inventory
-  3. Call AuditLogService.recordEvent BEFORE attempting payment
-  4. Call PaymentGateway.charge (provided — throws
-     PaymentDeclinedException on simulated failure)
-- AuditLogService.recordEvent is annotated
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-- The pre-written TransactionTest verifies:
-  - Happy path: order saved, inventory decremented, audit row exists
-  - PaymentDeclinedException: order and inventory rolled back, but
-    audit row still exists
+Open the starter project and work through the TODOs in two service
+files. The entities, repositories, and payment gateway are already
+wired.
 
-## Starter Code
+### Part 1: AuditLogService — Independent Transaction
 
-- PostgreSQL with orders, products, audit_log tables seeded
-- Order, Product, AuditLog entities (complete)
-- OrderService with placeOrder method stub
-- AuditLogService with recordEvent method stub (logic complete, just
-  needs the right annotation)
-- PaymentGateway provided — toggleable between success and decline
-- TransactionTest pre-written
+Open `AuditLogService.java`. The `recordEvent` method body is already
+written. You just need the right annotation so it runs in a separate
+transaction from its caller.
 
-## Verification
+**TODO 1: Annotate `recordEvent` with `@Transactional(propagation = Propagation.REQUIRES_NEW)`**
+`REQUIRES_NEW` suspends any existing transaction and starts a brand-new
+one for this method. That new transaction commits independently — so
+even when the caller's transaction rolls back, the audit row stays.
 
-- Both TransactionTest methods pass
-- SQL log on the failing path shows ROLLBACK on the outer transaction
-  and COMMIT on the audit transaction (the inner one)
-- You can explain why REQUIRES_NEW is required here — what would
-  happen with REQUIRED instead
+### Part 2: OrderService — Atomic placeOrder
+
+Open `OrderService.java`. The class is wired with all needed
+dependencies (`OrderRepository`, `ProductRepository`,
+`AuditLogService`, `PaymentGateway`).
+
+**TODO 2: Annotate `placeOrder` with `@Transactional`**
+The whole method runs in a single atomic transaction. If anything
+throws, everything rolls back.
+
+**TODO 3: Implement the body of `placeOrder`**
+Perform these steps in order:
+1. Save the new `Order` using `orderRepository.save(...)`
+2. Find the `Product` by id and decrement its `inventory` by the order
+   quantity, then save it
+3. Call `auditLogService.recordEvent(...)` with a description like
+   `"Attempting payment for order " + orderId` — this MUST happen BEFORE
+   payment is attempted so the audit row exists if payment fails
+4. Call `paymentGateway.charge(order)` — this throws
+   `PaymentDeclinedException` (a RuntimeException) if the simulated
+   gateway returns DECLINE
+
+If `charge` throws, the `@Transactional` annotation rolls back the
+order save and the inventory decrement automatically. Because
+`recordEvent` ran in REQUIRES_NEW, its row stays committed.
+
+## Deliverable
+
+`TransactionTest` passes both scenarios:
+- **Happy path:** order saved, inventory decremented, audit row exists
+- **Payment declined:** order and inventory rolled back (verify zero
+  matching rows for the failed order; verify product inventory back to
+  its starting value), but the audit row persists
+
+SQL logs on the failing path show ROLLBACK on the outer transaction
+and COMMIT on the inner (audit) transaction.
+
+## What's Included
+
+- `OrderService.java` with TODOs 2-3
+- `AuditLogService.java` with TODO 1
+- `PaymentGateway.java`, complete (toggleable between APPROVE and
+  DECLINE for testing)
+- `PaymentDeclinedException.java`, complete
+- `Order.java`, `Product.java`, `AuditLog.java` entities, complete
+- `OrderRepository.java`, `ProductRepository.java`,
+  `AuditLogRepository.java`, complete
+- `TransactionTest.java`, pre-written
+- `schema.sql` and `data.sql` (products with starting inventory)
+- `application.yml` with SQL logging and transaction logging on
 
 ## Common Mistakes
 
-- Importing @Transactional from jakarta.transaction — doesn't honor
-  Spring's propagation settings
-- Putting placeOrder on the audit service or vice versa — Spring proxy
-  self-invocation bypasses @Transactional
-- Catching the exception inside placeOrder instead of letting it
-  propagate — rollback never triggers
-- Forgetting rollbackFor for checked exceptions (not needed here since
-  PaymentDeclinedException is a RuntimeException, but worth knowing)
+- **Importing `@Transactional` from `jakarta.transaction`:** doesn't honor Spring's propagation settings. Use `org.springframework.transaction.annotation.Transactional` instead
+- **Self-invocation bypasses `@Transactional`:** if `placeOrder` calls another method on `this`, Spring's proxy doesn't intercept the inner call, and that method's `@Transactional` is ignored. Cross-service calls (OrderService calling AuditLogService) work fine because they go through the proxy
+- **Catching the exception inside placeOrder instead of letting it propagate:** swallowing `PaymentDeclinedException` means the transaction commits instead of rolling back. Let it propagate
+- **Calling `recordEvent` AFTER payment instead of before:** if you put the audit AFTER the payment call, the audit only happens on the happy path. The whole point is to record the attempt before it can fail
+- **Forgetting `rollbackFor` for checked exceptions:** not needed here because `PaymentDeclinedException` is a `RuntimeException`. But worth knowing — `@Transactional` only rolls back on RuntimeException by default. For checked exceptions, you need `@Transactional(rollbackFor = ...)`
