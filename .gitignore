@@ -1,3 +1,18 @@
+# OS files
 .DS_Store
-.vscode
+Thumbs.db
 
+# VS Code
+.vscode/
+
+# Maven build output
+target/
+
+# Logs
+*.log
+logs/
+
+# Local environment overrides
+.env
+application-local.yml
+application-local.properties
