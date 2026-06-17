@@ -1,4 +1,4 @@
-﻿-- Schema for Module 10: Spring Data JPA Repositories
+-- Schema for Module 10: Spring Data JPA Repositories
 -- Target: PostgreSQL 17
 
 DROP TABLE IF EXISTS order_item CASCADE;

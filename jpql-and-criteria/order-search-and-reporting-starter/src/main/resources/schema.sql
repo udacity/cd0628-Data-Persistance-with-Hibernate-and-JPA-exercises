@@ -1,4 +1,4 @@
-﻿-- Schema for Module 8: JPQL and Criteria
+-- Schema for Module 8: JPQL and Criteria
 -- Target: PostgreSQL 17
 
 DROP TABLE IF EXISTS orders CASCADE;

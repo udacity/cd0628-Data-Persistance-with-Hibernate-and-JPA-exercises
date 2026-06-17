@@ -1,4 +1,4 @@
-﻿-- Schema for Module 11: Transactional Boundaries and Propagation
+-- Schema for Module 11: Transactional Boundaries and Propagation
 -- Target: PostgreSQL 17
 
 DROP TABLE IF EXISTS audit_log CASCADE;

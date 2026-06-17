@@ -1,4 +1,4 @@
-﻿-- Schema for Module 4: Multi-Valued Relationships
+-- Schema for Module 4: Multi-Valued Relationships
 -- Target: PostgreSQL 17
 
 DROP TABLE IF EXISTS enrollment CASCADE;

@@ -1,4 +1,4 @@
-﻿-- Schema for Module 6: Hibernate Second-Level Cache
+-- Schema for Module 6: Hibernate Second-Level Cache
 -- Target: PostgreSQL 17
 
 DROP TABLE IF EXISTS product CASCADE;

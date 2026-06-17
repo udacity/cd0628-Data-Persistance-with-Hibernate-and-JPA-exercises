@@ -1,4 +1,4 @@
-﻿-- Schema for Module 9: Native Queries and Keyset Pagination
+-- Schema for Module 9: Native Queries and Keyset Pagination
 -- Target: PostgreSQL 17
 
 DROP TABLE IF EXISTS orders CASCADE;

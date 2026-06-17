@@ -1,4 +1,4 @@
-﻿-- Schema for Module 7: N+1 Detection and Resolution
+-- Schema for Module 7: N+1 Detection and Resolution
 -- Target: PostgreSQL 17
 
 DROP TABLE IF EXISTS comment CASCADE;

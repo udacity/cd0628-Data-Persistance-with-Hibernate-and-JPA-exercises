@@ -1,4 +1,4 @@
-﻿-- Schema for Module 1: JDBC + HikariCP Connection Pool Benchmark
+-- Schema for Module 1: JDBC + HikariCP Connection Pool Benchmark
 -- Target: PostgreSQL 17
 
 DROP TABLE IF EXISTS customer CASCADE;
