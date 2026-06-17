@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * No TODOs here. Just run the tests after completing the repository.
  */
-@SpringBootTest
+@SpringBootTest(classes = Application.class)
 class CustomerRepositoryTest {
 
     @Autowired
