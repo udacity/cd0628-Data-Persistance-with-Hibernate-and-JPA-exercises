@@ -1,8 +1,8 @@
--- Schema for Module 7: N+1 Detection and Resolution
+﻿-- Schema for Module 7: N+1 Detection and Resolution
 -- Target: PostgreSQL 17
 
-DROP TABLE IF EXISTS comment;
-DROP TABLE IF EXISTS blog_post;
+DROP TABLE IF EXISTS comment CASCADE;
+DROP TABLE IF EXISTS blog_post CASCADE;
 
 CREATE TABLE blog_post (
     id            BIGSERIAL PRIMARY KEY,

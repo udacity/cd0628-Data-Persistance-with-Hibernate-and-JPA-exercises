@@ -1,7 +1,7 @@
--- Schema for Module 1: JDBC + HikariCP Connection Pool Benchmark
+﻿-- Schema for Module 1: JDBC + HikariCP Connection Pool Benchmark
 -- Target: PostgreSQL 17
 
-DROP TABLE IF EXISTS customer;
+DROP TABLE IF EXISTS customer CASCADE;
 
 CREATE TABLE customer (
     id          BIGSERIAL PRIMARY KEY,

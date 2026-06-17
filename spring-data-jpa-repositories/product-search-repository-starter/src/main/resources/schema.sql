@@ -1,8 +1,8 @@
--- Schema for Module 10: Spring Data JPA Repositories
+﻿-- Schema for Module 10: Spring Data JPA Repositories
 -- Target: PostgreSQL 17
 
-DROP TABLE IF EXISTS order_item;
-DROP TABLE IF EXISTS product;
+DROP TABLE IF EXISTS order_item CASCADE;
+DROP TABLE IF EXISTS product CASCADE;
 
 CREATE TABLE product (
     id          BIGSERIAL PRIMARY KEY,

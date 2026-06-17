@@ -1,10 +1,10 @@
--- Schema for Module 3: Single-Valued Relationships
+﻿-- Schema for Module 3: Single-Valued Relationships
 -- Target: PostgreSQL 17
 
-DROP TABLE IF EXISTS orders;
-DROP TABLE IF EXISTS user_profile;
-DROP TABLE IF EXISTS app_user;
-DROP TABLE IF EXISTS customer;
+DROP TABLE IF EXISTS orders CASCADE;
+DROP TABLE IF EXISTS user_profile CASCADE;
+DROP TABLE IF EXISTS app_user CASCADE;
+DROP TABLE IF EXISTS customer CASCADE;
 
 CREATE TABLE app_user (
     id        BIGSERIAL PRIMARY KEY,
@@ -13,7 +13,7 @@ CREATE TABLE app_user (
 );
 
 CREATE TABLE user_profile (
-    -- Shared primary key via @MapsId — no separate generated id
+    -- Shared primary key via @MapsId â€” no separate generated id
     id           BIGINT PRIMARY KEY REFERENCES app_user (id),
     display_name VARCHAR(100),
     bio          TEXT

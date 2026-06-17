@@ -1,11 +1,11 @@
--- Schema for Module 4: Multi-Valued Relationships
+﻿-- Schema for Module 4: Multi-Valued Relationships
 -- Target: PostgreSQL 17
 
-DROP TABLE IF EXISTS enrollment;
-DROP TABLE IF EXISTS course;
-DROP TABLE IF EXISTS student;
-DROP TABLE IF EXISTS comment;
-DROP TABLE IF EXISTS blog_post;
+DROP TABLE IF EXISTS enrollment CASCADE;
+DROP TABLE IF EXISTS course CASCADE;
+DROP TABLE IF EXISTS student CASCADE;
+DROP TABLE IF EXISTS comment CASCADE;
+DROP TABLE IF EXISTS blog_post CASCADE;
 
 CREATE TABLE blog_post (
     id          BIGSERIAL PRIMARY KEY,

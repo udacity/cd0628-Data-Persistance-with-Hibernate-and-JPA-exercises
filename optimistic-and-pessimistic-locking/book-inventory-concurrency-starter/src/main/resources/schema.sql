@@ -1,7 +1,7 @@
--- Schema for Module 12: Optimistic and Pessimistic Locking
+﻿-- Schema for Module 12: Optimistic and Pessimistic Locking
 -- Target: PostgreSQL 17
 
-DROP TABLE IF EXISTS book;
+DROP TABLE IF EXISTS book CASCADE;
 
 CREATE TABLE book (
     id          BIGSERIAL PRIMARY KEY,

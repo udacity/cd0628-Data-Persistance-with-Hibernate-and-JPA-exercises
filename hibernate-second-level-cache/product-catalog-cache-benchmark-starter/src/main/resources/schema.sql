@@ -1,7 +1,7 @@
--- Schema for Module 6: Hibernate Second-Level Cache
+﻿-- Schema for Module 6: Hibernate Second-Level Cache
 -- Target: PostgreSQL 17
 
-DROP TABLE IF EXISTS product;
+DROP TABLE IF EXISTS product CASCADE;
 
 CREATE TABLE product (
     id          BIGSERIAL PRIMARY KEY,

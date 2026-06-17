@@ -1,9 +1,9 @@
--- Schema for Module 11: Transactional Boundaries and Propagation
+﻿-- Schema for Module 11: Transactional Boundaries and Propagation
 -- Target: PostgreSQL 17
 
-DROP TABLE IF EXISTS audit_log;
-DROP TABLE IF EXISTS orders;
-DROP TABLE IF EXISTS product;
+DROP TABLE IF EXISTS audit_log CASCADE;
+DROP TABLE IF EXISTS orders CASCADE;
+DROP TABLE IF EXISTS product CASCADE;
 
 CREATE TABLE product (
     id          BIGSERIAL PRIMARY KEY,

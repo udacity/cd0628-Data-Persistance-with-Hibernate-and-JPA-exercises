@@ -1,8 +1,8 @@
--- Schema for Module 9: Native Queries and Keyset Pagination
+﻿-- Schema for Module 9: Native Queries and Keyset Pagination
 -- Target: PostgreSQL 17
 
-DROP TABLE IF EXISTS orders;
-DROP TABLE IF EXISTS product;
+DROP TABLE IF EXISTS orders CASCADE;
+DROP TABLE IF EXISTS product CASCADE;
 
 CREATE TABLE product (
     id          BIGSERIAL PRIMARY KEY,
