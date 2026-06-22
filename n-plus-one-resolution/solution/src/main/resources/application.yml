@@ -1,0 +1,30 @@
+# Application configuration for Module 7: N+1 Detection and Resolution
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/banking
+    username: banking
+    password: banking
+    driver-class-name: org.postgresql.Driver
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        format_sql: true
+        generate_statistics: true       # Required for query-count assertions
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.stat: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
