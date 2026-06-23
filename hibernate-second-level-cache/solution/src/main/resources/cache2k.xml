@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cache2k xmlns="https://cache2k.org/schema/v1.x">
+
+    <ignoreMissingCacheConfiguration>true</ignoreMissingCacheConfiguration>
+
+    <caches>
+        <cache name="com.udacity.cache.Product">
+            <entryCapacity>200</entryCapacity>
+            <expireAfterWrite>600000</expireAfterWrite>
+        </cache>
+        <cache name="default">
+            <entryCapacity>200</entryCapacity>
+            <expireAfterWrite>600000</expireAfterWrite>
+        </cache>
+    </caches>
+
+</cache2k>

@@ -22,7 +22,7 @@
         <java.version>21</java.version>
     </properties>
 
-   <dependencies>
+  <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -39,19 +39,19 @@
             <artifactId>hibernate-jcache</artifactId>
         </dependency>
 
-        <!-- Ehcache (provides JCache implementation) -->
-        <dependency>
-            <groupId>org.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-            <version>3.10.8</version>
-            <classifier>jakarta</classifier>
-        </dependency>
-
-        <!-- JSR-107 JCache API -->
+        <!-- JSR-107 (JCache) API -->
         <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>cache-api</artifactId>
             <version>1.1.1</version>
+        </dependency>
+
+        <!-- cache2k provides a clean JCache provider known to work
+             with Hibernate 7 + Spring Boot 4 (Jakarta namespace) -->
+        <dependency>
+            <groupId>org.cache2k</groupId>
+            <artifactId>cache2k-jcache</artifactId>
+            <version>2.6.1.Final</version>
         </dependency>
 
         <dependency>

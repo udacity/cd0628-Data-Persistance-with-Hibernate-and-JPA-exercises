@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,9 +20,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  *   - >95% cache hit ratio
  *   - <=10 total SQL queries (one per unique ID, the rest served
  *     from the cache)
+ *
+ * Note: NOT @Transactional. The L2 cache only commits entries on
+ * transaction commit, so a single rolled-back wrapping transaction
+ * across the whole test would defeat the cache.
  */
 @SpringBootTest(classes = Application.class)
-@Transactional
 class CacheBenchmarkTest {
 
     private static final int CALLS = 1000;
@@ -64,8 +66,8 @@ class CacheBenchmarkTest {
         long hits = statistics.getSecondLevelCacheHitCount();
         long misses = statistics.getSecondLevelCacheMissCount();
         long queries = statistics.getPrepareStatementCount();
-        double total = hits + misses;
-        double hitRatio = total == 0 ? 0 : (hits / total) * 100;
+        long totalLookups = hits + misses;
+        double hitRatio = totalLookups == 0 ? 0 : ((double) hits / totalLookups) * 100;
 
         System.out.printf("L2 cache: hits=%d misses=%d hit-ratio=%.2f%%%n", hits, misses, hitRatio);
         System.out.printf("Total SQL queries: %d%n", queries);
