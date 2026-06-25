@@ -19,7 +19,7 @@
     <description>Module 7: Hibernate Second-Level Cache with Ehcache</description>
 
     <properties>
-        <java.version>21</java.version>
+        <java.version>25</java.version>
     </properties>
 
   <dependencies>

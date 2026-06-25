@@ -19,7 +19,7 @@
     <description>Module 6: N+1 Resolution (JOIN FETCH, EntityGraph, BatchSize)</description>
 
     <properties>
-        <java.version>21</java.version>
+        <java.version>25</java.version>
     </properties>
 
     <dependencies>

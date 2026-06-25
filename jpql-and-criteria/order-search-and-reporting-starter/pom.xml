@@ -19,7 +19,7 @@
     <description>Module 8: JPQL and Criteria dynamic order search</description>
 
     <properties>
-        <java.version>21</java.version>
+        <java.version>25</java.version>
     </properties>
 
     <dependencies>
