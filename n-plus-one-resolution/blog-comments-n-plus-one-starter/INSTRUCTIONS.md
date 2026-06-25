@@ -8,6 +8,20 @@ Hibernate logs and then fix it three different ways: with JPQL's
 collection. You'll measure the query count for each approach so
 the trade-offs are concrete, not abstract.
 
+
+## Before You Start
+
+This exercise connects to a PostgreSQL database named `banking` as the
+`banking` user. If you haven't run the one-time workspace setup script
+yet, run it from the repository root:
+
+```
+bash setup/setup-postgres.sh
+```
+
+The script is idempotent and safe to re-run. See `setup/SETUP.md` at
+the repository root for details.
+
 ## Exercise Instructions
 
 Open the starter project and work through the TODOs in two files.

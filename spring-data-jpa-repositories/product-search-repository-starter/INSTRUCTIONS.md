@@ -9,6 +9,20 @@ projection, and a dynamic Specification search. Each is a small,
 isolated addition to the repository, and the goal is to see when
 each technique is the right tool.
 
+
+## Before You Start
+
+This exercise connects to a PostgreSQL database named `banking` as the
+`banking` user. If you haven't run the one-time workspace setup script
+yet, run it from the repository root:
+
+```
+bash setup/setup-postgres.sh
+```
+
+The script is idempotent and safe to re-run. See `setup/SETUP.md` at
+the repository root for details.
+
 ## Exercise Instructions
 
 Open the starter project and work through the TODOs across two
