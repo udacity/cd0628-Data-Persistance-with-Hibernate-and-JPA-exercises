@@ -1,7 +1,6 @@
 package com.udacity.report;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
@@ -9,26 +8,28 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
     // ============================================================
-    // TODO 1: Implement using a JPQL @Query.
+    // TODO 1: Implement using a JPQL @Query annotation.
     //
-    // Annotate this method with:
+    // The goal: return the top 10 customers by total spend in a
+    // given year, projected directly into TopCustomerDto so the
+    // query doesn't materialize full Customer entities.
     //
-    //   @Query("""
-    //     SELECT new com.udacity.report.TopCustomerDto(
-    //         c.id, c.name, SUM(o.amount))
-    //     FROM Order o
-    //     JOIN o.customer c
-    //     WHERE EXTRACT(YEAR FROM o.placedAt) = :year
-    //     GROUP BY c.id, c.name
-    //     ORDER BY SUM(o.amount) DESC
-    //     LIMIT 10
-    //     """)
+    // Your query will need to:
+    //   - Join Order to Customer
+    //   - Filter by year on the order's placedAt timestamp
+    //   - Group by the customer fields you select
+    //   - Aggregate the order amounts with SUM
+    //   - Order by total spend, descending
+    //   - Limit to 10 rows
+    //   - Project into TopCustomerDto via a JPQL constructor expression
     //
-    // Notes:
-    //   - Constructor expression projects directly into TopCustomerDto
-    //   - GROUP BY every non-aggregated column you SELECT
-    //   - EXTRACT(YEAR FROM <date>) filters by year
-    //   - LIMIT 10 caps the result set
+    // Hints:
+    //   - JPQL constructor expression uses the FULLY QUALIFIED class
+    //     name: new com.udacity.report.TopCustomerDto(...)
+    //   - To filter by year, JPQL supports EXTRACT(YEAR FROM ...)
+    //   - When you SELECT a non-aggregated column, it must appear in
+    //     GROUP BY
+    //   - JPQL supports LIMIT directly since JPA 3.2
     // ============================================================
     List<TopCustomerDto> findTopCustomers(@Param("year") int year);
 }

@@ -2,7 +2,6 @@ package com.udacity.nativequeries;
 
 import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
@@ -12,17 +11,30 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // ============================================================
     // TODO 2: Implement keyset pagination.
     //
-    // Annotate this method with @Query:
+    // The goal: return up to `limit` products with a name strictly
+    // greater than `lastName`, walking forward through the catalog
+    // alphabetically. Repeated calls passing the previous batch's
+    // last name should yield the next batch with no overlap or gaps.
     //
-    //   @Query("SELECT p FROM Product p " +
-    //          "WHERE p.name > :lastName " +
-    //          "ORDER BY p.name ASC, p.id ASC")
+    // Why keyset, not offset?
+    //   - Offset pagination scans (offset + limit) rows on every page,
+    //     so latency grows with page number
+    //   - Keyset uses an index on the cursor column, so cost stays
+    //     constant regardless of how deep into the catalog you are
     //
-    // Notes:
-    //   - name > :lastName walks past the cursor
-    //   - id is a tiebreaker if two products share a name
-    //   - Limit is a Spring Data 3.2+ alternative to Pageable
-    //     when you only need a row cap, no offset
+    // Your query needs to:
+    //   - Find products where the name is strictly greater than the
+    //     cursor value
+    //   - Order by name ascending (the cursor column comes first)
+    //   - Include a deterministic tiebreaker for duplicate names so
+    //     pagination doesn't skip or repeat rows
+    //
+    // Hints:
+    //   - Annotate the method with @Query containing your JPQL
+    //   - The `limit` parameter uses Spring Data's Limit type, which
+    //     caps rows without paying any offset cost
+    //   - First call starts from an empty string ("") since every
+    //     name is lexically greater than that
     // ============================================================
     List<Product> findProductsAfter(@Param("lastName") String lastName, Limit limit);
 }

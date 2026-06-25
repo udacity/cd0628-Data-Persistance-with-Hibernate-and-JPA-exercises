@@ -6,60 +6,64 @@ import java.math.BigDecimal;
 
 /**
  * Reusable Specification builders for Product queries.
- * Each one returns a single predicate that can be combined with .and(...).
+ * Each method returns a single Specification that can be combined
+ * via Specification.allOf(...) or .and(...).
  */
 public class ProductSpecs {
 
     private ProductSpecs() {}
 
     // ============================================================
-    // TODO 4: Implement categoryIs(String category).
+    // TODO 4: Build a Specification that filters by category.
     //
-    // Return a Specification that adds an equality predicate for the
-    // category field. If category is null, return a no-op spec:
+    // The goal: return a Specification<Product> that, when applied,
+    // adds an equality predicate on the category field.
     //
-    //   return (root, query, cb) -> {
-    //       if (category == null) return null;
-    //       return cb.equal(root.get("category"), category);
-    //   };
+    // Behavior when category is null:
+    //   - Return a "no-op" Specification by having the lambda
+    //     return null at the predicate level. Spring Data drops
+    //     null predicates from the composed WHERE clause, which
+    //     is exactly what you want when the filter is absent.
     //
-    // The no-op return null at the predicate level is safe when this
-    // spec is composed with .and(...) -- Spring Data drops null
-    // predicates from the WHERE clause.
+    // Hints:
+    //   - A Specification is a lambda of (root, query, cb) -> Predicate
+    //   - Use cb.equal(path, value) to build an equality predicate
+    //   - root.get("fieldName") gets a Path to a field
     // ============================================================
     public static Specification<Product> categoryIs(String category) {
-        return (root, query, cb) -> null; // placeholder
+        return null; // replace with your Specification lambda
     }
 
     // ============================================================
-    // TODO 5: Implement priceBetween(BigDecimal min, BigDecimal max).
+    // TODO 5: Build a Specification for an inclusive price range.
     //
-    // Return a Specification that adds a between predicate for price.
-    // Handle nullable bounds:
+    // The goal: return a Specification that filters by price, but
+    // gracefully handles each combination of nulls:
+    //   - both null    -> no predicate (return null inside the lambda)
+    //   - only min set -> price >= min
+    //   - only max set -> price <= max
+    //   - both set     -> between (inclusive)
     //
-    //   return (root, query, cb) -> {
-    //       if (min == null && max == null) return null;
-    //       if (min != null && max != null) {
-    //           return cb.between(root.get("price"), min, max);
-    //       }
-    //       if (min != null) {
-    //           return cb.greaterThanOrEqualTo(root.get("price"), min);
-    //       }
-    //       return cb.lessThanOrEqualTo(root.get("price"), max);
-    //   };
+    // Hints:
+    //   - cb.between(path, lo, hi)
+    //   - cb.greaterThanOrEqualTo(path, value)
+    //   - cb.lessThanOrEqualTo(path, value)
     // ============================================================
     public static Specification<Product> priceBetween(BigDecimal min, BigDecimal max) {
-        return (root, query, cb) -> null; // placeholder
+        return null; // replace with your Specification lambda
     }
 
     // ============================================================
-    // TODO 6: Implement isInStock().
+    // TODO 6: Build a Specification that filters to in-stock items.
     //
-    // Fixed predicate, no parameters:
+    // The goal: return a Specification that adds a predicate
+    // checking the inStock boolean is true. No parameters needed.
     //
-    //   return (root, query, cb) -> cb.isTrue(root.get("inStock"));
+    // Hints:
+    //   - cb.isTrue(path) is the cleanest expression
+    //   - root.get("inStock") returns the Path to the boolean field
     // ============================================================
     public static Specification<Product> isInStock() {
-        return (root, query, cb) -> null; // placeholder
+        return null; // replace with your Specification lambda
     }
 }

@@ -3,8 +3,6 @@ package com.udacity.transactions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-
 @Service
 public class OrderService {
 
@@ -14,29 +12,45 @@ public class OrderService {
     @Autowired private PaymentGateway paymentGateway;
 
     // ============================================================
-    // TODO 2: Annotate this method with @Transactional
+    // TODO 2: Annotate this method as transactional.
     //
-    // Import:
-    //   import org.springframework.transaction.annotation.Transactional;
+    // The goal: the four steps inside placeOrder should be ALL-OR-
+    // NOTHING. If the payment gateway throws, the order save and
+    // inventory decrement should both roll back automatically.
     //
-    // Wraps the whole method in a single atomic transaction. If
-    // anything throws a RuntimeException, all DB changes here roll
-    // back automatically.
+    // Hint:
+    //   - Use Spring's @Transactional, not Jakarta's
     //
     //
-    // TODO 3: Implement the method body in order:
-    //   1. Save the Order via orderRepository.save(order)
-    //   2. Find the Product by order.getProductId(), decrement its
-    //      inventory by order.getQuantity(), save it
-    //   3. Call auditLogService.recordEvent("PAYMENT_ATTEMPT",
-    //         "Attempting payment for order " + order.getId())
-    //      BEFORE the payment call so the audit row exists even if
-    //      payment then declines
-    //   4. Call paymentGateway.charge(order)
+    // TODO 3: Implement placeOrder.
     //
-    // If charge throws PaymentDeclinedException, @Transactional rolls
-    // back the order save and inventory decrement. The audit row stays
-    // because recordEvent ran in REQUIRES_NEW.
+    // The method receives an Order with productId, quantity, and
+    // totalAmount already populated. You need to:
+    //
+    //   1. Persist the order so it has an id
+    //   2. Look up the matching Product, decrement its inventory by
+    //      the order's quantity, persist the change
+    //   3. Record an audit event for the payment ATTEMPT, including
+    //      the order id - this must happen BEFORE the payment call
+    //      so the audit row exists even if payment declines
+    //   4. Charge the payment gateway with the order
+    //
+    // The order of step 3 vs step 4 matters: if you audit AFTER the
+    // payment, the audit only fires on the happy path, defeating
+    // the whole point of recording the attempt.
+    //
+    // Why the rollback works:
+    //   - PaymentGateway.charge throws PaymentDeclinedException, a
+    //     RuntimeException
+    //   - @Transactional rolls back automatically on RuntimeException
+    //   - The audit row written in step 3 survives because
+    //     AuditLogService uses a separate, independent transaction
+    //
+    // Pitfalls:
+    //   - Don't try-catch the exception inside this method. Let it
+    //     propagate so @Transactional sees it and rolls back
+    //   - Use productRepository.findById(...).orElseThrow(...) and
+    //     fail fast if the product isn't found
     // ============================================================
     public Order placeOrder(Order order) {
         return null; // placeholder
