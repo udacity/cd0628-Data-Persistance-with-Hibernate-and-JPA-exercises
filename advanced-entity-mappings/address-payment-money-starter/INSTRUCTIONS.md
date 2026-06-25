@@ -1,116 +1,92 @@
-# Exercise: Embeddable Address, Inheritance, and a Money Converter
+# Exercise: Map Address, Payment, and Money for an Order System
 
 ## Overview
 
-Three advanced mapping patterns applied to one e-commerce starter.
-You'll extract Address as an `@Embeddable` reused by Customer (one
-address) and Order (two addresses: shipping and billing), configure
-Payment with JOINED inheritance and two concrete subtypes, and write
-an `AttributeConverter` so Money is stored as a BigDecimal. A
-pre-written SchemaInspectionTest verifies the DDL Hibernate generates.
+In this exercise, you'll go beyond simple entities and model three
+advanced mapping patterns: `@Embeddable` value types for Address,
+JOINED inheritance for a Payment hierarchy with two subtypes
+(CreditCard and BankTransfer), and a custom `AttributeConverter`
+to persist a Money value object as two columns. You'll verify
+the schema is shaped correctly and that the inheritance dispatches
+to the right table on read.
 
 ## Exercise Instructions
 
-Open the starter project and work through the TODOs across six files.
-Hibernate generates the schema (`ddl-auto: create`), so the test
-inspects what came out.
+Open the starter project and work through the TODOs across four
+files.
 
-### Part 1: Embeddable Address
+### Part 1: Address as @Embeddable
 
 Open `Address.java`.
 
 **TODO 1: Annotate the class with `@Embeddable`**
-Tells Hibernate this is a value type, not an entity. No separate
-address table will be created.
+Embeddable types are value objects -- they don't have an id of
+their own, they live inside an owning entity's row.
 
 Open `Customer.java`.
 
-**TODO 2: Annotate the `address` field with `@Embedded`**
-Embeds the Address columns into the customer table using default
-column names (`street`, `city`, `state`, `postal_code`).
+**TODO 2: Annotate the address field with `@Embedded`**
+Marks the field as a value composition. The address columns will be
+inlined into the customer table.
 
-Open `Order.java`. Order has TWO Address fields: `shippingAddress`
-and `billingAddress`. Both embed into the orders table, so the column
-names MUST be distinct or Hibernate will fail to start.
-
-**TODO 3: Annotate the `shippingAddress` field with `@Embedded`, plus `@AttributeOverrides`**
-Rename each column with a `shipping_` prefix:
-- `street` → `shipping_street`
-- `city` → `shipping_city`
-- `state` → `shipping_state`
-- `postalCode` → `shipping_postal_code`
-
-**TODO 4: Annotate the `billingAddress` field with `@Embedded`, plus `@AttributeOverrides`**
-Rename each column with a `billing_` prefix:
-- `street` → `billing_street`
-- `city` → `billing_city`
-- `state` → `billing_state`
-- `postalCode` → `billing_postal_code`
-
-### Part 2: JOINED Inheritance
+### Part 2: Payment Inheritance (JOINED)
 
 Open `Payment.java`.
 
-**TODO 5: Annotate the class with `@Inheritance(strategy = InheritanceType.JOINED)`**
-Each subclass gets its own table; the parent holds shared columns and
-the FK link.
+**TODO 3: Annotate as `@Entity` with JOINED inheritance**
+Add `@Inheritance(strategy = InheritanceType.JOINED)`. Each subtype
+gets its own table; the parent table holds the shared columns.
 
-Open `CreditCardPayment.java`.
+Open `CreditCardPayment.java` and `BankTransferPayment.java`.
 
-**TODO 6: Annotate the class with `@Entity`**
-Marks it as a persistent subtype. No `@Inheritance` here — that lives
-on the parent.
+**TODO 4: Both subclasses already extend Payment**
+Just verify the inheritance compiles and the schema matches the
+expectation (one `payment` table plus a child table per subtype).
 
-Open `BankTransferPayment.java`.
-
-**TODO 7: Annotate the class with `@Entity`**
-Same as the credit card subtype.
-
-### Part 3: Money AttributeConverter
+### Part 3: Money via AttributeConverter
 
 Open `MoneyConverter.java`.
 
-**TODO 8: Annotate the class with `@Converter(autoApply = true)`**
-`autoApply = true` means Hibernate uses this converter for any field
-of type Money without you having to declare it on each field.
-
-**TODO 9: Implement `convertToDatabaseColumn(Money money)`**
-Return the BigDecimal `amount` from the Money object. Handle null
-gracefully — return null if the input is null.
-
-**TODO 10: Implement `convertToEntityAttribute(BigDecimal value)`**
-Build and return a Money object from the BigDecimal. Default the
-currency to "USD" if you need to. Handle null gracefully.
+**TODO 5: Implement `convertToDatabaseColumn` and `convertToEntityAttribute`**
+The converter packs a `Money(amount, currencyCode)` into a single
+`String` column (e.g., "USD:19.99") and unpacks it on read. Use
+`@Converter(autoApply = true)` so JPA picks it up for every Money
+field automatically.
 
 ## Deliverable
 
-`SchemaInspectionTest` passes. The generated DDL shows:
-- Address columns appear inline on the `customer` table (street, city,
-  state, postal_code)
-- Order has eight address columns: `shipping_street`, `shipping_city`,
-  `shipping_state`, `shipping_postal_code`, plus the four `billing_`
-  equivalents
-- A `payment` table plus separate `credit_card_payment` and
-  `bank_transfer_payment` tables, joined on `payment.id`
-- Money fields stored as a BigDecimal column wherever Money is used
+`SchemaInspectionTest` passes:
+- The customer table has flattened address columns (street, city, etc.)
+- The payment table exists with shared columns
+- credit_card_payment and bank_transfer_payment exist as JOINED tables
+- Money values round-trip correctly through the converter
+
+Run the test with:
+
+```
+mvn test
+```
+
+Expected output ends with:
+
+```
+[INFO] BUILD SUCCESS
+```
 
 ## What's Included
 
-- `Address.java` with TODO 1
+- `Address.java` with TODOs 1
 - `Customer.java` with TODO 2
-- `Order.java` with TODOs 3-4
-- `Payment.java` with TODO 5
-- `CreditCardPayment.java` with TODO 6
-- `BankTransferPayment.java` with TODO 7
-- `MoneyConverter.java` with TODOs 8-10
-- `Money.java`, complete value type
+- `Payment.java`, `CreditCardPayment.java`, `BankTransferPayment.java`
+  with TODOs 3-4
+- `Money.java` and `MoneyConverter.java` with TODO 5
+- `Order.java`, complete (uses Money via the converter)
 - `SchemaInspectionTest.java`, pre-written
-- `application.yml` with `ddl-auto: create` and DDL logging on
+- `application.yml` with SQL logging and `ddl-auto: create-drop`
 
 ## Common Mistakes
 
-- **Two `@Embedded` fields of the same type without `@AttributeOverrides`:** Hibernate fails to start because both try to define the same column names in the same table
-- **`@Inheritance` on a subclass instead of the parent:** the strategy belongs on the root class
-- **Choosing `SINGLE_TABLE` when subtypes have many distinct columns:** leaves a wide table full of nulls; JOINED keeps things tidy
-- **`AttributeConverter` that doesn't handle null:** NPE the first time a nullable column is read
-- **Forgetting `autoApply = true`:** the converter is silently ignored unless you annotate every Money field with `@Convert`
+- **`@Embeddable` without `@Embedded` on the field:** Hibernate may treat the type as a separate entity and fail at startup.
+- **JOINED inheritance and missing child tables:** each subtype declares its own table via `@Table(name = ...)`; missing that gives you implicit table names you may not want.
+- **AttributeConverter forgetting `@Converter(autoApply = true)`:** then every Money field needs `@Convert(converter = MoneyConverter.class)` explicitly. autoApply removes the boilerplate.
+- **JOINED is great for clean schemas, slow for deep hierarchies:** every read JOINs the parent and the child table. Worth knowing for Module 5's discussion.

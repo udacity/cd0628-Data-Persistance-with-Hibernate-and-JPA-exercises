@@ -1,71 +1,74 @@
-# Exercise: User Profile and Order Customer Mappings
+# Exercise: Map UserProfile and Order with Single-Valued Relationships
 
 ## Overview
 
-Two single-valued relationships in one project. User and UserProfile
-share a primary key as a bidirectional `@OneToOne`. Order references
-Customer as a `@ManyToOne` with LAZY fetch. You'll add four annotations
-across four entities and watch a pre-written test verify cascade,
-shared-PK behavior, and the difference between LAZY and JOIN FETCH.
+In this exercise, you'll model two common single-valued JPA
+relationships: a User and UserProfile sharing a primary key via
+`@OneToOne` + `@MapsId`, and an Order with a lazy `@ManyToOne` to
+Customer. You'll verify the relationships persist correctly and
+confirm that LAZY fetching defers the customer load until the
+field is actually accessed.
 
 ## Exercise Instructions
 
-Open the starter project and work through the TODOs in four entity
-files. The repository code and tests are already written.
+Open the starter project and work through the TODOs across two
+entity files.
 
-### Part 1: User and UserProfile (Bidirectional @OneToOne with @MapsId)
-
-Open `User.java`.
-
-**TODO 1: Annotate the `profile` field with `@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)`**
-Makes User the inverse (non-owning) side. Saving a User cascades to its
-UserProfile.
+### Part 1: UserProfile with @OneToOne and @MapsId
 
 Open `UserProfile.java`.
 
-**TODO 2: Annotate the `user` field with `@OneToOne`, plus `@MapsId`, plus `@JoinColumn(name = "id")`**
-Makes UserProfile the owning side. `@MapsId` tells Hibernate to use the
-parent User's id as UserProfile's own id (shared primary key). No
-extra column is needed.
+**TODO 1: Add the relationship to User**
+Annotate the `user` field with `@OneToOne` and `@MapsId`. With
+`@MapsId`, the UserProfile's primary key IS the User's primary key
+(no separate id column), enforcing the 1:1 strict pairing at the
+schema level.
 
-### Part 2: Order to Customer (@ManyToOne LAZY)
+### Part 2: Order with LAZY @ManyToOne to Customer
 
 Open `Order.java`.
 
-**TODO 3: Annotate the `customer` field with `@ManyToOne(fetch = FetchType.LAZY)`**
-The Customer reference loads on demand, not at the time the Order is
-loaded. This is what causes the N+1 unless you explicitly fetch.
-
-**TODO 4: Add `@JoinColumn(name = "customer_id", nullable = false)` (on the same `customer` field)**
-Names the foreign key column explicitly. `nullable = false` enforces
-that every Order has a Customer.
-
-Open `Customer.java`. No annotations to add here. The class is provided
-for reference.
+**TODO 2: Add the relationship to Customer**
+Annotate the `customer` field with `@ManyToOne(fetch = FetchType.LAZY)`
+and a `@JoinColumn(name = "customer_id")`. LAZY tells Hibernate to
+issue the SELECT for Customer only when the field is actually
+accessed, not at order load time.
 
 ## Deliverable
 
-`RelationshipTest` passes. SQL logs show:
-- A single INSERT cascade when you save a User with its UserProfile
-- A 1+N query pattern when iterating Orders without JOIN FETCH
-- A single query when using the pre-written `findAllWithCustomer`
-  JOIN FETCH method
+`RelationshipTest` passes:
+- UserProfile shares the same id as its User
+- Loading a User loads its profile via @MapsId
+- Loading an Order does NOT immediately load its Customer (lazy)
+- Accessing order.getCustomer() triggers a separate SELECT
+
+Run the test with:
+
+```
+mvn test
+```
+
+Expected output ends with:
+
+```
+[INFO] BUILD SUCCESS
+```
+
+The SQL log shows the lazy customer SELECT firing on demand, not
+at order load time.
 
 ## What's Included
 
-- `User.java` with TODO 1
-- `UserProfile.java` with TODO 2
-- `Order.java` with TODOs 3 and 4
-- `Customer.java`, complete
-- `OrderRepository.java` with `findAllWithCustomer` JOIN FETCH already
-  written
+- `User.java` and `Customer.java`, complete
+- `UserProfile.java` with TODO 1
+- `Order.java` with TODO 2
+- `OrderRepository.java`, complete
 - `RelationshipTest.java`, pre-written
-- `schema.sql` and `data.sql` for all four tables
+- `schema.sql` and `data.sql`
 - `application.yml` with SQL logging on
 
 ## Common Mistakes
 
-- **Forgetting `@MapsId`:** UserProfile ends up with a separate auto-generated id, breaking the shared-PK design
-- **Two owning sides on `@OneToOne`:** without `mappedBy` on one side, Hibernate creates two updates instead of one
-- **`fetch = EAGER` as an N+1 "fix":** it just shifts when the queries fire, not how many. JOIN FETCH or `@EntityGraph` is the real fix
-- **Accessing LAZY outside a transaction:** `LazyInitializationException`. Make sure your test method is `@Transactional`
+- **@OneToOne without @MapsId creates a separate id column:** the schema fails because `id` is meant to be the foreign key, not its own sequence.
+- **LAZY only works inside an active session:** accessing a lazy field after the session closes throws `LazyInitializationException`.
+- **N+1 in the wild:** if a test loops orders and reads each customer, you'll see N+1 SELECTs even with LAZY. That's a separate problem (Module 6 fixes it).

@@ -1,61 +1,82 @@
-# Exercise: ID Strategies and Lifecycle Transitions
+# Exercise: Trace JPA Lifecycle and Id Generation Timing
 
 ## Overview
 
-Two JPA entities, Customer and Order, with different ID generation
-strategies. You'll add the right annotations, then watch a pre-written
-test walk both entities through every lifecycle state. The point is to
-see how IDENTITY and SEQUENCE generate IDs at different times in the
-transaction, and to recognize each lifecycle transition by its SQL.
+In this exercise, you'll trace JPA's entity lifecycle by observing
+when SQL actually fires for the IDENTITY versus SEQUENCE generator
+strategies. You'll persist entities under each strategy and watch
+the Hibernate logs to see how the generator choice changes the
+timing of INSERT statements relative to your code.
 
 ## Exercise Instructions
 
-Open the starter project and work through the TODOs in two entity files.
-H2 is used in-memory, so no Postgres setup is needed.
+Open the starter project and work through the TODOs in two entity
+files plus one test setup method.
 
-### Part 1: Customer Entity
+### Part 1: Customer with IDENTITY Generator
 
 Open `Customer.java`.
 
-**TODO 1: Annotate the `id` field with `@Id`**
-Marks the id field as the primary key.
+**TODO 1: Annotate the `id` field**
+Add `@Id` and `@GeneratedValue(strategy = GenerationType.IDENTITY)`.
+With IDENTITY, the database assigns the id and Hibernate must issue
+an INSERT immediately on `persist` to learn the generated value.
 
-**TODO 2: On the same `id` field, add `@GeneratedValue(strategy = GenerationType.IDENTITY)`**
-Tells Hibernate to let the database assign the ID via an auto-increment
-column. The INSERT will fire immediately on `persist()` because
-Hibernate needs the row to learn the ID.
-
-### Part 2: Order Entity
+### Part 2: Order with SEQUENCE Generator
 
 Open `Order.java`.
 
-**TODO 3: Annotate the `id` field with `@Id`**
-Same as Customer.
+**TODO 2: Annotate the `id` field with a sequence generator**
+Add `@Id` and `@GeneratedValue(strategy = GenerationType.SEQUENCE,
+generator = "order_seq")`, plus a matching `@SequenceGenerator(name =
+"order_seq", sequenceName = "order_sequence", allocationSize = 50)`.
+SEQUENCE pre-allocates ids in batches so Hibernate can defer INSERTs
+until flush.
 
-**TODO 4: On the same `id` field, add `@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "order_seq")`**
-Tells Hibernate to use a database sequence to assign IDs.
+### Part 3: Lifecycle Walkthrough
 
-**TODO 5: On the same `id` field, add `@SequenceGenerator(name = "order_seq", sequenceName = "order_sequence", allocationSize = 50)`**
-Defines the sequence Hibernate calls. `allocationSize = 50` lets
-Hibernate batch insert orders efficiently.
+Open `LifecycleTest.java`.
+
+**TODO 3: Observe and assert lifecycle transitions**
+The test scaffolding is provided. Read through and confirm:
+- A new entity is `transient` until persist
+- After persist with IDENTITY, an INSERT has already fired
+- After persist with SEQUENCE, no INSERT until flush or commit
+- `em.detach(...)` moves an entity to detached state
+- `em.merge(...)` brings it back as managed
+- `em.remove(...)` schedules a DELETE on flush
 
 ## Deliverable
 
-`LifecycleTest` passes, and the SQL logs show the timing difference:
-IDENTITY INSERT fires on `persist()`, SEQUENCE INSERT fires at flush
-(or commit).
+`LifecycleTest` passes:
+- IDENTITY strategy: an INSERT fires immediately on persist
+- SEQUENCE strategy: INSERTs batch and flush at commit
+- Detached, merged, and removed states transition as expected
+
+Run the test with:
+
+```
+mvn test
+```
+
+Expected output ends with:
+
+```
+[INFO] BUILD SUCCESS
+```
+
+The SQL log shows the difference in INSERT timing between strategies.
 
 ## What's Included
 
-- `Customer.java` with TODOs 1-2
-- `Order.java` with TODOs 3-5
-- `LifecycleTest.java`, complete, walks each entity through
-  persist → detach → merge → remove
-- `application.yml`, H2 in-memory with SQL logging on
+- `Customer.java` with TODO 1 (IDENTITY)
+- `Order.java` with TODO 2 (SEQUENCE)
+- `LifecycleTest.java`, pre-written with the walkthrough
+- `application.yml` with SQL logging on
+- H2 in-memory database (no Postgres needed for this exercise)
 
 ## Common Mistakes
 
-- **`@SequenceGenerator` missing:** Hibernate uses a default named "hibernate_sequence" and you get unexpected names
-- **persist on a managed entity:** silent no-op (not an error)
-- **detach vs remove confusion:** detach only affects the session; remove emits DELETE
-- **`@Id` on a wrapper type without `nullable=false`:** can hide bugs where the id never gets set
+- **No INSERT visible with IDENTITY:** flush is implicit at commit, but logs may be filtered. Check `org.hibernate.SQL` is at DEBUG.
+- **SEQUENCE strategy throws "sequence does not exist":** Hibernate creates the sequence at startup based on the generator name. Mismatched names won't auto-create.
+- **`em.merge` returns a new object:** the parameter stays detached. Always use the returned reference for further work.

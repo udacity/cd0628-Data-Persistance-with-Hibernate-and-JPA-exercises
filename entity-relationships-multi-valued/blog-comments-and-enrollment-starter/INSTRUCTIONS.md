@@ -1,75 +1,80 @@
-# Exercise: Blog Comments and Student Enrollments
+# Exercise: Map Comments and Enrollment with Multi-Valued Relationships
 
 ## Overview
 
-Two multi-valued relationships in one project. BlogPost has many Comments
-with `orphanRemoval`. Student and Course have a many-to-many relationship
-through an Enrollment intermediate entity that carries an
-`enrollmentDate`. You'll add five annotations across five entities and
-watch a pre-written test verify cascade, orphan removal, and
-bidirectional consistency.
+In this exercise, you'll model two multi-valued JPA relationships
+that come up constantly in real apps. A BlogPost owns a collection
+of Comments via `@OneToMany` with `orphanRemoval`, where deleting
+a Comment from the collection actually deletes the row. And a
+Student/Course many-to-many is modeled with an explicit Enrollment
+join entity, since it carries its own data (the enrollment date).
 
 ## Exercise Instructions
 
-Open the starter project and work through the TODOs in five entity files.
-The helper methods and tests are already written.
+Open the starter project and work through the TODOs across three
+entity files.
 
-### Part 1: BlogPost and Comment (@OneToMany with orphanRemoval)
+### Part 1: BlogPost owns Comments
 
 Open `BlogPost.java`.
 
-**TODO 1: Annotate the `comments` field with `@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)`**
-- `mappedBy = "post"` says Comment owns the FK
-- `cascade = ALL` propagates saves and deletes
-- `orphanRemoval = true` means removing a Comment from this collection
-  triggers a DELETE on that Comment
+**TODO 1: Add the comments collection**
+Annotate a `List<Comment>` field with `@OneToMany(mappedBy = "blogPost",
+cascade = CascadeType.ALL, orphanRemoval = true)`. The `mappedBy`
+declares this side is the inverse; the Comment side owns the FK.
+`orphanRemoval = true` means removing a Comment from this list
+actually deletes that row.
 
 Open `Comment.java`.
 
-**TODO 2: Annotate the `post` field with `@ManyToOne`, plus `@JoinColumn(name = "post_id", nullable = false)`**
-Comment is the owning side. The `post_id` column carries the FK to
-blog_post.
+**TODO 2: Add the owning side**
+Annotate a `BlogPost blogPost` field with `@ManyToOne(fetch = FetchType.LAZY)`
+and `@JoinColumn(name = "blog_post_id")`. This is the owning side of
+the relationship -- the FK column lives here.
 
-### Part 2: Student, Course, Enrollment (@ManyToMany via Intermediate Entity)
+### Part 2: Student/Course via Enrollment join entity
 
 Open `Enrollment.java`.
 
-**TODO 3: Annotate the `student` field with `@ManyToOne`, plus `@JoinColumn(name = "student_id", nullable = false)`**
-The student side of the join.
-
-**TODO 4: Annotate the `course` field with `@ManyToOne`, plus `@JoinColumn(name = "course_id", nullable = false)`**
-The course side.
-
-Open `Student.java`.
-
-**TODO 5: Annotate the `enrollments` field with `@OneToMany(mappedBy = "student", cascade = CascadeType.ALL)`**
-Lets you navigate from a Student to all their Enrollments. The
-`addEnrollment` helper method (pre-written) uses this collection.
+**TODO 3: Add the two @ManyToOne fields**
+Annotate `student` with `@ManyToOne` and `@JoinColumn(name = "student_id")`.
+Annotate `course` with `@ManyToOne` and `@JoinColumn(name = "course_id")`.
+The composite primary key (or the auto id you already see) ties them
+together with the enrollment date.
 
 ## Deliverable
 
-`RelationshipTest` passes. SQL logs show DELETE statements when:
-- A BlogPost is deleted (cascade)
-- A Comment is removed from `blogPost.getComments()` (orphan removal)
+`RelationshipTest` passes:
+- Adding a Comment to a BlogPost persists the comment
+- Removing a Comment from the list deletes the row (orphanRemoval)
+- Enrolling a Student in a Course creates an Enrollment row
+- The enrollment carries its own enrolledOn date
 
-You can navigate `student.getEnrollments()` and
-`course.getEnrollments()` and see consistent state from both sides.
+Run the test with:
+
+```
+mvn test
+```
+
+Expected output ends with:
+
+```
+[INFO] BUILD SUCCESS
+```
 
 ## What's Included
 
-- `BlogPost.java` with TODO 1, plus pre-written `addComment` helper
+- `BlogPost.java` with TODO 1
 - `Comment.java` with TODO 2
-- `Student.java` with TODO 5, plus pre-written `addEnrollment` helper
-- `Course.java`, complete
-- `Enrollment.java` with TODOs 3-4
+- `Student.java` and `Course.java`, complete
+- `Enrollment.java` with TODO 3
+- `BlogPostRepository.java`, complete
 - `RelationshipTest.java`, pre-written
-- `schema.sql` and `data.sql` for all five tables
+- `schema.sql` and `data.sql`
 - `application.yml` with SQL logging on
 
 ## Common Mistakes
 
-- **Using `@ManyToMany` directly with `@JoinTable`:** works until you need extra columns like `enrollmentDate`. Migrating later is painful. Use an intermediate entity from the start.
-- **Setting only one side of the relationship in tests:** the inverse collection looks empty. Use the pre-written helpers, which set both sides.
-- **`orphanRemoval` without `cascade`:** leaves orphaned rows in the child table when the parent is deleted
-- **Missing `mappedBy`:** Hibernate quietly creates an extra join table you didn't ask for
-- **equals/hashCode on entities used in Sets:** if you compare by `@Id` and the id is null pre-persist, you get duplicate-by-identity bugs
+- **Forgetting `mappedBy`:** Hibernate creates a SECOND FK column or a join table you didn't want. The non-owning side always uses `mappedBy`.
+- **orphanRemoval vs CascadeType.REMOVE:** orphanRemoval deletes when you remove the child from the parent's collection. CascadeType.REMOVE deletes when you remove the parent. They're different triggers.
+- **Many-to-many without a join entity:** works for simple cases but you can't attach metadata (like enrollment date) without a real entity in the middle.

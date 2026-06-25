@@ -2,10 +2,12 @@
 
 ## Overview
 
-Complete a partly-built JDBC data access layer and tune a HikariCP
-connection pool. You'll implement two repository methods, set four pool
-configuration values, and run a benchmark that compares pool sizes
-under concurrent load.
+In this exercise, you'll measure the performance difference between
+unpooled JDBC connections and a HikariCP-backed connection pool.
+You'll implement the pooled path, then run a benchmark that issues
+many short queries through each strategy. The benchmark prints
+average per-query latency so you can see the cost of connection
+setup directly.
 
 ## Exercise Instructions
 
@@ -50,9 +52,24 @@ Maximum lifetime of any single connection. Start with 1_800_000
 
 ## Deliverable
 
-All tests pass, and `BenchmarkRunner` prints throughput for both pool
-configurations. You should see higher throughput at `pool=10` than at
-`pool=2` under 20 concurrent threads.
+`CustomerRepositoryTest` passes:
+- Pooled queries return identical results to unpooled queries
+- Pooled latency is meaningfully lower than unpooled
+
+Run the test with:
+
+```
+mvn test
+```
+
+Expected output ends with:
+
+```
+[INFO] BUILD SUCCESS
+```
+
+The benchmark log lines also show average latency per query for
+each strategy.
 
 ## What's Included
 

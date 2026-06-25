@@ -1,77 +1,74 @@
-# Exercise: Cache a Product Entity and Confirm the Hit Ratio
+# Exercise: Cache a Read-Heavy Product Catalog
 
 ## Overview
 
-Enable Hibernate's second-level cache for a Product entity, configure
-Ehcache as the cache provider, and confirm via Hibernate statistics
-that the cache is actually serving reads. A pre-written test performs
-1,000 findById calls across 10 product IDs and asserts a >95% cache
-hit ratio with ≤10 total SQL queries.
+In this exercise, you'll cut SQL traffic to a small product catalog
+by enabling Hibernate's second-level cache. You'll add the `@Cache`
+annotation to the Product entity, configure JCache with a cache
+provider in `application.yml`, then run a benchmark that hits the
+catalog 1,000 times across 10 product ids. With the cache warm,
+you should see the hit ratio climb above 95% and total SQL queries
+drop to roughly the number of unique ids.
 
 ## Exercise Instructions
 
-Open the starter project and work through the TODOs across three files.
+Open the starter project and work through the TODOs in two files.
 
-### Part 1: Application Configuration
+### Part 1: Configure the L2 cache region factory
 
-Open `application.yml`. Find the commented-out cache section in the
-`spring.jpa.properties.hibernate` block.
+Open `application.yml`. The dependencies are already wired in pom.xml
+for hibernate-jcache + cache2k.
 
-**TODO 1: Uncomment the cache config block**
-Uncomment the lines for:
+**TODO 1: Enable second-level cache and point to JCache**
+Add the following under `spring.jpa.properties.hibernate`:
 - `cache.use_second_level_cache: true`
 - `cache.region.factory_class: org.hibernate.cache.jcache.JCacheRegionFactory`
-- `javax.cache.provider: org.ehcache.jsr107.EhcacheCachingProvider`
-- `javax.cache.uri: classpath:ehcache.xml`
+- `javax.cache.provider: org.cache2k.jcache.provider.JCacheProvider`
+- `javax.cache.missing_cache_strategy: create`
 
-These tell Hibernate to use a JCache-backed L2 cache pointed at
-Ehcache.
-
-### Part 2: Cache Region
-
-Open `ehcache.xml`. The XML shell is in place but the product region
-is empty.
-
-**TODO 2: Define the product cache region**
-Inside the existing `<config>` element, add a `<cache alias="com.udacity.cache.Product">`
-block with:
-- A `<expiry>` element using `<ttl unit="minutes">10</ttl>`
-- A `<heap>` element with size `100` and unit `entries`
-
-The alias must match the fully-qualified entity class name so
-Hibernate knows which region to use.
-
-### Part 3: Cache the Product Entity
+### Part 2: Mark Product as cacheable
 
 Open `Product.java`.
 
-**TODO 3: Annotate the class with `@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)`**
-- `READ_WRITE` is the right choice for entities that get updated.
-  `READ_ONLY` throws on update; `NONSTRICT_READ_WRITE` allows stale
-  reads, which we don't want.
+**TODO 2: Annotate the entity with `@Cache`**
+Add `@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)`. READ_WRITE
+is safe for entities that get updated. The cache region uses the
+fully-qualified entity class name by default.
 
 ## Deliverable
 
 `CacheBenchmarkTest` passes:
-- 1,000 `findById` calls complete
-- Hibernate statistics show >95% cache hit ratio
-- Total SQL query count is ≤10 (one per unique product ID)
+- Cache hit ratio > 95% after warmup
+- Total SQL queries <= 10 (one per unique id)
 
-The test also prints the hit ratio and final query count so you can
-see the cache effect.
+Run the test with:
+
+```
+mvn test
+```
+
+Expected output ends with:
+
+```
+[INFO] BUILD SUCCESS
+```
+
+The test prints the actual hit count and ratio so you can see the
+cache in action.
 
 ## What's Included
 
+- `Product.java` with TODO 2
+- `ProductRepository.java`, complete
+- `Application.java`, complete
 - `application.yml` with TODO 1
-- `ehcache.xml` with TODO 2
-- `Product.java` with TODO 3
-- `CacheBenchmarkTest.java`, pre-written with statistics assertions
-- `schema.sql` and `data.sql` for the products table (10 seeded rows)
+- `cache2k.xml`, complete (cache region config)
+- `CacheBenchmarkTest.java`, pre-written
+- `schema.sql` and `data.sql` (10 products for the benchmark)
 
 ## Common Mistakes
 
-- **Cache config enabled but `@Cache` missing on the entity:** the L2 cache silently does nothing — no error, just no hits
-- **`READ_ONLY` strategy on a mutable entity:** throws on update
-- **Confusing first-level (session) cache with second-level (shared):** L1 hits across calls in the same session can mask whether L2 is actually working. The test bypasses L1 by clearing the session between calls
-- **Measuring without a warmup phase:** first read always misses. The test includes warmup
-- **Region alias mismatch:** if `ehcache.xml`'s alias doesn't match the entity's fully-qualified class name, Hibernate uses a default region with different settings
+- **Test class is `@Transactional`:** the L2 cache only commits entries on real transaction commit. A test transaction that rolls back at the end will defeat the cache.
+- **`missing_cache_strategy` not set:** cache2k requires this to auto-create the region on demand. Otherwise you get an "ignoreMissingCacheConfiguration" error at startup.
+- **Wrong cache provider class:** hibernate-jcache uses ServiceLoader to find the provider. Wrong classpath = silent fallback or hard failure.
+- **`@Cache` on Product but not on its relationships:** the entity is cached but associations still hit the database. Add `@Cache` to those collections too if you need them cached.
