@@ -2,16 +2,9 @@
 
 A small restaurant menu domain demonstrating three advanced mapping features:
 
-- **@Embedded / @Embeddable** — `Money` is a value type embedded directly into
-  the `MenuItem` table. Its `amount` and `currency` fields become columns on
-  `menu_item`, no separate table.
-- **@ElementCollection** — `List<String> ingredients` is stored in a side table
-  `menu_item_ingredient` with a foreign key back to `menu_item`. Each ingredient
-  is a row.
-- **@Convert with AttributeConverter** — `Set<DietaryFlag>` is packed into a
-  compact single-character string via `DietaryFlagsConverter`. On write, the
-  set is joined into "VS" (Vegan + Spicy). On read, it is decoded back into a
-  Set.
+- **@Embedded / @Embeddable** — `Money` is a value type embedded directly into the `MenuItem` table. Its `amount` and `currency` fields become columns on `menu_item`, no separate table.
+- **@ElementCollection** — `List<String> ingredients` is stored in a side table `menu_item_ingredient` with a foreign key back to `menu_item`. Each ingredient is a row.
+- **@Convert with AttributeConverter** — `Set<DietaryFlag>` is packed into a compact single-character string via `DietaryFlagsConverter`. On write, the set is joined into "VS" (Vegan + Spicy). On read, it is decoded back into a Set.
 
 ## Files
 
@@ -23,10 +16,15 @@ A small restaurant menu domain demonstrating three advanced mapping features:
 
 ## How to run
 
-Uses the `banking` Postgres database via Docker. Schema is auto-created via
-`hibernate.hbm2ddl.auto=update`.
+Uses the `banking` Postgres database provisioned in the Udacity workspace. First-time setup creates the role and database:
 
 ```
-mvn compile
+bash /workspace/setup/setup-postgres.sh
+```
+
+Then compile and run. Schema is auto-created via `hibernate.hbm2ddl.auto=update`.
+
+```
+mvn clean compile
 mvn exec:java
 ```
