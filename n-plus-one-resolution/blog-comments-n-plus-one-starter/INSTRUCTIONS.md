@@ -8,7 +8,6 @@ Hibernate logs and then fix it three different ways: with JPQL's
 collection. You'll measure the query count for each approach so
 the trade-offs are concrete, not abstract.
 
-
 ## Before You Start
 
 This exercise connects to a PostgreSQL database named `banking` as the
@@ -24,32 +23,26 @@ the repository root for details.
 
 ## Exercise Instructions
 
-Open the starter project and work through the TODOs in two files.
+Open the starter project and work through the TODOs in two files. The
+naive N+1 baseline uses the inherited `findAll()` method, so there's
+no TODO for it -- the test calls `findAll()` directly and the SQL log
+shows one SELECT per post.
 
-### Part 1: Baseline N+1 demonstration
+### Part 1: Fix with JOIN FETCH
 
 Open `BlogPostRepository.java`.
 
-**TODO 1: Implement `findAllNaive` returning all blog posts**
-No annotation, no special fetch -- just a derived method. When the
-test iterates the result and accesses each post's comments, you'll
-see one SELECT per post in the log: the N+1 problem.
-
-### Part 2: Fix with JOIN FETCH
-
-Same file.
-
-**TODO 2: Implement `findAllWithJoinFetch` annotated with `@Query`**
-Use `SELECT DISTINCT p FROM BlogPost p LEFT JOIN FETCH p.comments`.
+**TODO 1: Implement `findAllWithJoinFetch` annotated with `@Query`**
+Use `SELECT DISTINCT p FROM BlogPost p JOIN FETCH p.comments`.
 JOIN FETCH pulls comments in the same SELECT as posts. DISTINCT is
 needed because the cartesian product would otherwise return one
 row per post-comment pair.
 
-### Part 3: Fix with @EntityGraph
+### Part 2: Fix with @EntityGraph
 
 Same file.
 
-**TODO 3: Implement `findAllWithEntityGraph` annotated with `@EntityGraph`**
+**TODO 2: Implement `findAllWithEntityGraph` annotated with `@EntityGraph`**
 Use `@EntityGraph(attributePaths = "comments")` on the method. The
 declarative form of the same JOIN FETCH idea, configurable per
 call site without changing the entity itself.
@@ -58,21 +51,27 @@ You'll also need `@Query("SELECT p FROM BlogPost p")` alongside
 the `@EntityGraph` -- without it, Spring Data parses the
 `findAllWithEntityGraph` name and ignores the entity graph.
 
-### Part 4: Fix with @BatchSize
+### Part 3: Fix with @BatchSize
+
+Same file.
+
+**TODO 3: Implement `findAllWithBatchSize` as a default method delegating to `findAll()`**
+The method body just returns `findAll()`. The batching behavior comes
+from the annotation you add in TODO 4, not from the method itself.
 
 Open `BlogPost.java`.
 
 **TODO 4: Annotate the comments collection with `@BatchSize`**
-Use `@BatchSize(size = 10)`. This doesn't change individual queries
+Use `@BatchSize(size = 20)`. This doesn't change individual queries
 to JOIN FETCH; instead, when lazy loading kicks in, Hibernate batches
-up to 10 deferred loads into a single `IN (...)` query. Different
+up to 20 deferred loads into a single `IN (...)` query. Different
 trade-off: keeps each row's first SELECT lean, but trades latency
 for batched follow-ups.
 
 ## Deliverable
 
 `NPlusOneTest` passes:
-- Naive version fires N+1 queries (assertion catches this)
+- Naive version (findAll) fires N+1 queries (assertion catches this)
 - JOIN FETCH version fires 1 query
 - EntityGraph version fires 1 query
 - BatchSize version fires <= 2 queries (initial + one batched lazy load)
