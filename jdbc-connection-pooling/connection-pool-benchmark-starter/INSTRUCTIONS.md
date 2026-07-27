@@ -2,12 +2,14 @@
 
 ## Overview
 
-In this exercise, you'll measure the performance difference between
-unpooled JDBC connections and a HikariCP-backed connection pool.
-You'll implement the pooled path, then run a benchmark that issues
-many short queries through each strategy. The benchmark prints
-average per-query latency so you can see the cost of connection
-setup directly.
+In this exercise, you'll implement a HikariCP-backed data source and
+tune its pool settings, then measure how pool size affects throughput
+under concurrent load. You'll implement the repository's read and
+batch-insert paths, fill in the pool configuration, then run a
+benchmark that fires many short queries from 20 concurrent threads
+against two different pool sizes. The benchmark prints throughput in
+queries per second for each, so you can see the effect of pool sizing
+directly.
 
 
 ## Before You Start
@@ -67,8 +69,8 @@ Maximum lifetime of any single connection. Start with 1_800_000
 ## Deliverable
 
 `CustomerRepositoryTest` passes:
-- Pooled queries return identical results to unpooled queries
-- Pooled latency is meaningfully lower than unpooled
+- `findById` returns the correct customer, and an empty Optional for a missing id
+- `batchInsert` persists every customer in the list
 
 Run the test with:
 
@@ -82,15 +84,15 @@ Expected output ends with:
 [INFO] BUILD SUCCESS
 ```
 
-The benchmark log lines also show average latency per query for
-each strategy.
+When the application runs, `BenchmarkRunner` prints a throughput line
+for each pool size (2 and 10), so you can compare queries per second
+across the two configurations.
 
 ## What's Included
 
 - `CustomerRepositoryImpl.java` with TODOs 1 and 2
 - `HikariConfigFactory.java` with TODOs 3-6
 - `BenchmarkRunner.java`, complete, runs automatically on startup
-- `CustomerRepositoryTest.java`, pre-written
 - `schema.sql` and `data.sql` for the customer table
 
 ## Common Mistakes
