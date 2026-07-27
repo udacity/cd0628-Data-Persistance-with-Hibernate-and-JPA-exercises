@@ -8,19 +8,11 @@ strategies. You'll persist entities under each strategy and watch
 the Hibernate logs to see how the generator choice changes the
 timing of INSERT statements relative to your code.
 
-
 ## Before You Start
 
-This exercise connects to a PostgreSQL database named `banking` as the
-`banking` user. If you haven't run the one-time workspace setup script
-yet, run it from the repository root:
-
-```
-bash setup/setup-postgres.sh
-```
-
-The script is idempotent and safe to re-run. See `setup/SETUP.md` at
-the repository root for details.
+This exercise uses an in-memory H2 database that spins up automatically
+when the test runs, so there's no database setup to do. Unlike the
+other modules, you don't need to run the Postgres setup script here.
 
 ## Exercise Instructions
 
