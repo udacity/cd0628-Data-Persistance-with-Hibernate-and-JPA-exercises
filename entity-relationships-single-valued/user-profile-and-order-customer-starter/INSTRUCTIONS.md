@@ -25,26 +25,38 @@ the repository root for details.
 
 ## Exercise Instructions
 
-Open the starter project and work through the TODOs across two
+Open the starter project and work through the TODOs across three
 entity files.
 
-### Part 1: UserProfile with @OneToOne and @MapsId
+### Part 1: The User side of the @OneToOne
+
+Open `User.java`.
+
+**TODO 1: Add the inverse side of the relationship to UserProfile**
+Annotate the `profile` field with
+`@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)`.
+`mappedBy` marks User as the inverse (non-owning) side -- UserProfile
+owns the foreign key. `cascade = ALL` means persisting a User also
+persists its profile.
+
+### Part 2: The UserProfile side with @MapsId
 
 Open `UserProfile.java`.
 
-**TODO 1: Add the relationship to User**
-Annotate the `user` field with `@OneToOne` and `@MapsId`. With
-`@MapsId`, the UserProfile's primary key IS the User's primary key
-(no separate id column), enforcing the 1:1 strict pairing at the
-schema level.
+**TODO 2: Add the owning side of the relationship to User**
+Annotate the `user` field with three annotations: `@OneToOne`,
+`@MapsId`, and `@JoinColumn(name = "id")`. With `@MapsId`, the
+UserProfile's primary key IS the User's primary key (no separate id
+column), enforcing the strict 1:1 pairing at the schema level.
 
-### Part 2: Order with LAZY @ManyToOne to Customer
+### Part 3: Order with LAZY @ManyToOne to Customer
 
 Open `Order.java`.
 
-**TODO 2: Add the relationship to Customer**
-Annotate the `customer` field with `@ManyToOne(fetch = FetchType.LAZY)`
-and a `@JoinColumn(name = "customer_id")`. LAZY tells Hibernate to
+**TODO 3 and TODO 4: Add the lazy relationship to Customer**
+Annotate the `customer` field with
+`@ManyToOne(fetch = FetchType.LAZY)` (TODO 3) and a
+`@JoinColumn(name = "customer_id")` (TODO 4). LAZY tells Hibernate to
 issue the SELECT for Customer only when the field is actually
 accessed, not at order load time.
 
@@ -73,9 +85,10 @@ at order load time.
 
 ## What's Included
 
-- `User.java` and `Customer.java`, complete
-- `UserProfile.java` with TODO 1
-- `Order.java` with TODO 2
+- `User.java` with TODO 1
+- `Customer.java`, complete
+- `UserProfile.java` with TODO 2
+- `Order.java` with TODOs 3-4
 - `OrderRepository.java`, complete
 - `RelationshipTest.java`, pre-written
 - `schema.sql` and `data.sql`
