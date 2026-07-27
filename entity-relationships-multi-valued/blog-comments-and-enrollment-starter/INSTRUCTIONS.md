@@ -25,7 +25,7 @@ the repository root for details.
 
 ## Exercise Instructions
 
-Open the starter project and work through the TODOs across three
+Open the starter project and work through the TODOs across four
 entity files.
 
 ### Part 1: BlogPost owns Comments
@@ -33,8 +33,8 @@ entity files.
 Open `BlogPost.java`.
 
 **TODO 1: Add the comments collection**
-Annotate a `List<Comment>` field with `@OneToMany(mappedBy = "blogPost",
-cascade = CascadeType.ALL, orphanRemoval = true)`. The `mappedBy`
+Annotate the `List<Comment>` field with `@OneToMany(mappedBy = "post",
+cascade = CascadeType.ALL, orphanRemoval = true)`. The `mappedBy = "post"`
 declares this side is the inverse; the Comment side owns the FK.
 `orphanRemoval = true` means removing a Comment from this list
 actually deletes that row.
@@ -42,19 +42,33 @@ actually deletes that row.
 Open `Comment.java`.
 
 **TODO 2: Add the owning side**
-Annotate a `BlogPost blogPost` field with `@ManyToOne(fetch = FetchType.LAZY)`
-and `@JoinColumn(name = "blog_post_id")`. This is the owning side of
-the relationship -- the FK column lives here.
+Annotate the `post` field with `@ManyToOne` and
+`@JoinColumn(name = "post_id", nullable = false)`. This is the owning
+side of the relationship -- the FK column lives here.
 
 ### Part 2: Student/Course via Enrollment join entity
 
 Open `Enrollment.java`.
 
-**TODO 3: Add the two @ManyToOne fields**
-Annotate `student` with `@ManyToOne` and `@JoinColumn(name = "student_id")`.
-Annotate `course` with `@ManyToOne` and `@JoinColumn(name = "course_id")`.
-The composite primary key (or the auto id you already see) ties them
-together with the enrollment date.
+**TODO 3: Add the @ManyToOne to Student**
+Annotate the `student` field with `@ManyToOne` and
+`@JoinColumn(name = "student_id", nullable = false)`.
+
+**TODO 4: Add the @ManyToOne to Course**
+Annotate the `course` field with `@ManyToOne` and
+`@JoinColumn(name = "course_id", nullable = false)`. Together with
+TODO 3, these two foreign keys plus the enrollment date make
+Enrollment a real join entity rather than a hidden join table.
+
+### Part 3: Student owns its Enrollments
+
+Open `Student.java`.
+
+**TODO 5: Add the enrollments collection**
+Annotate the `List<Enrollment>` field with
+`@OneToMany(mappedBy = "student", cascade = CascadeType.ALL)`. This is
+the inverse side -- Enrollment owns the `student_id` FK (TODO 3). It
+lets you navigate from a Student to all their enrollments.
 
 ## Deliverable
 
@@ -80,8 +94,9 @@ Expected output ends with:
 
 - `BlogPost.java` with TODO 1
 - `Comment.java` with TODO 2
-- `Student.java` and `Course.java`, complete
-- `Enrollment.java` with TODO 3
+- `Enrollment.java` with TODOs 3-4
+- `Student.java` with TODO 5
+- `Course.java`, complete
 - `BlogPostRepository.java`, complete
 - `RelationshipTest.java`, pre-written
 - `schema.sql` and `data.sql`
