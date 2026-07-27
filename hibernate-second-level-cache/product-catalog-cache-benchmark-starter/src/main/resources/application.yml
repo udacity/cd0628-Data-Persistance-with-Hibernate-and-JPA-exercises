@@ -1,5 +1,4 @@
-# Application configuration for Module 6: Second-Level Cache
-# TODO: uncomment the cache section and add @Cache(usage = READ_WRITE) on Product.
+# Application configuration for Module 7: Second-Level Cache
 
 spring:
   datasource:
@@ -28,9 +27,9 @@ spring:
         #   use_second_level_cache: true
         #   region:
         #     factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
-        # javax.cache.provider: org.ehcache.jsr107.EhcacheCachingProvider
-        # javax.cache.uri: classpath:ehcache.xml
-
+        # javax.cache.provider: org.cache2k.jcache.provider.JCacheProvider
+        # javax.cache.missing_cache_strategy: create
+        
 logging:
   level:
     org.hibernate.SQL: DEBUG

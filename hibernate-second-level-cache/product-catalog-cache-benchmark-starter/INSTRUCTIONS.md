@@ -76,7 +76,6 @@ cache in action.
 - `ProductRepository.java`, complete
 - `Application.java`, complete
 - `application.yml` with TODO 1
-- `cache2k.xml`, complete (cache region config)
 - `CacheBenchmarkTest.java`, pre-written
 - `schema.sql` and `data.sql` (10 products for the benchmark)
 
