@@ -25,8 +25,10 @@ the repository root for details.
 
 Open the starter project and work through the TODOs in two files. The
 naive N+1 baseline uses the inherited `findAll()` method, so there's
-no TODO for it -- the test calls `findAll()` directly and the SQL log
-shows one SELECT per post.
+no TODO for it -- the test calls `findAll()` directly. Note that once
+you add `@BatchSize` in TODO 4, even this baseline batches its lazy
+loads, so it fires a small fixed number of queries rather than one per
+post.
 
 ### Part 1: Fix with JOIN FETCH
 
@@ -71,7 +73,7 @@ for batched follow-ups.
 ## Deliverable
 
 `NPlusOneTest` passes:
-- Naive version (findAll) fires N+1 queries (assertion catches this)
+- Naive version (findAll) batches lazy loads via @BatchSize into a small fixed number of queries (the test asserts this baseline count)
 - JOIN FETCH version fires 1 query
 - EntityGraph version fires 1 query
 - BatchSize version fires <= 2 queries (initial + one batched lazy load)

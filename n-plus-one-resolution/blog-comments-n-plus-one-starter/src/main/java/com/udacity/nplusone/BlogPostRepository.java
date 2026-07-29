@@ -24,9 +24,10 @@ public interface BlogPostRepository extends JpaRepository<BlogPost, Long> {
     // Annotate this method with:
     //   @EntityGraph(attributePaths = "comments")
     //
-    // The method body itself is just a standard findAll() override.
-    // Spring Data combines the graph with the default query.
-    // Result: exactly ONE query, in a reusable way.
+    // You also need @Query("SELECT p FROM BlogPost p") on this method --
+    // without it, Spring Data derives a query from the method name and
+    // ignores the entity graph. With the @Query in place, Spring Data
+    // combines the graph with that query for exactly ONE query.
     //
     // Import:
     //   import org.springframework.data.jpa.repository.EntityGraph;
