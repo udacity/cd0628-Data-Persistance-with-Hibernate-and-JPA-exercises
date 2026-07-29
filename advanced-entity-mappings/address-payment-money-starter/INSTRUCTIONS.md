@@ -26,7 +26,7 @@ the repository root for details.
 
 ## Exercise Instructions
 
-Open the starter project and work through the TODOs across six
+Open the starter project and work through the TODOs across seven
 files.
 
 ### Part 1: Address as @Embeddable
@@ -109,7 +109,7 @@ Expected output ends with:
 - `CreditCardPayment.java` and `BankTransferPayment.java` with TODOs 6-7
 - `Money.java` and `MoneyConverter.java` with TODOs 8-10
 - `SchemaInspectionTest.java`, pre-written
-- `application.yml` with SQL logging and `ddl-auto: create-drop`
+- `application.yml` with SQL logging and `ddl-auto: create`
 
 ## Common Mistakes
 

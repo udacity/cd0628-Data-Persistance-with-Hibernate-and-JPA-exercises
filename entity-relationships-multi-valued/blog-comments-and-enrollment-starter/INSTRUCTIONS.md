@@ -76,7 +76,7 @@ lets you navigate from a Student to all their enrollments.
 - Adding a Comment to a BlogPost persists the comment
 - Removing a Comment from the list deletes the row (orphanRemoval)
 - Enrolling a Student in a Course creates an Enrollment row
-- The enrollment carries its own enrolledOn date
+- The enrollment carries its own enrollment date
 
 Run the test with:
 

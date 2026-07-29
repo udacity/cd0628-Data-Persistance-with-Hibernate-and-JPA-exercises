@@ -103,8 +103,8 @@ Expected output ends with:
 - `ProductSpecs.java` with TODOs 4, 5, 6
 - `ProductSummary.java`, complete interface projection
 - `Product.java` and `OrderItem.java`, complete
-- `ProductSearchSpec.java` record, complete (the input DTO for the
-  search service)
+- `ProductSearchSpec.java` record, complete (holds the search
+  criteria fields)
 - `QueryTest.java`, pre-written
 - `schema.sql` and `data.sql` (200 products across 5 categories,
   1,000 order items)

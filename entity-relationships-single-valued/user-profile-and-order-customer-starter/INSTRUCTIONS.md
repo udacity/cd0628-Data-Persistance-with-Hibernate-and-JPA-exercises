@@ -65,6 +65,9 @@ accessed, not at order load time.
 `RelationshipTest` passes:
 - UserProfile shares the same id as its User
 - Loading a User loads its profile via @MapsId
+
+In the SQL log you'll also see the LAZY fetch at work (the test itself
+doesn't assert query counts, so watch the log to confirm):
 - Loading an Order does NOT immediately load its Customer (lazy)
 - Accessing order.getCustomer() triggers a separate SELECT
 
