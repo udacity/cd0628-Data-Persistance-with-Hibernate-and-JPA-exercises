@@ -10,7 +10,7 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 
 // ============================================================
-// TODO 3: Annotate this class with:
+// TODO 2: Annotate this class with:
 //   @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 //
 // READ_WRITE is the right choice for entities that get updated.

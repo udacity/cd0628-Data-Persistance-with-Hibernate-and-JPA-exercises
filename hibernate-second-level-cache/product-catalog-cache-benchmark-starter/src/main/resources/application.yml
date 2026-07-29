@@ -22,7 +22,7 @@ spring:
       hibernate:
         format_sql: true
         generate_statistics: true
-        # TODO: enable second-level cache (uncomment and complete):
+        # TODO 1: enable second-level cache (uncomment and complete):
         # cache:
         #   use_second_level_cache: true
         #   region:
