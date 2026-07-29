@@ -17,34 +17,32 @@ other modules, you don't need to run the Postgres setup script here.
 ## Exercise Instructions
 
 Open the starter project and work through the TODOs in two entity
-files plus one test setup method.
+files (the test is already complete).
 
 ### Part 1: Customer with IDENTITY Generator
 
 Open `Customer.java`.
 
-**TODO 1: Annotate the `id` field**
-Add `@Id` and `@GeneratedValue(strategy = GenerationType.IDENTITY)`.
-With IDENTITY, the database assigns the id and Hibernate must issue
-an INSERT immediately on `persist` to learn the generated value.
+**TODO 1 and TODO 2: Annotate the `id` field**
+Add `@Id` (TODO 1) and `@GeneratedValue(strategy = GenerationType.IDENTITY)`
+(TODO 2). With IDENTITY, the database assigns the id and Hibernate must
+issue an INSERT immediately on `persist` to learn the generated value.
 
 ### Part 2: Order with SEQUENCE Generator
 
 Open `Order.java`.
 
-**TODO 2: Annotate the `id` field with a sequence generator**
-Add `@Id` and `@GeneratedValue(strategy = GenerationType.SEQUENCE,
-generator = "order_seq")`, plus a matching `@SequenceGenerator(name =
-"order_seq", sequenceName = "order_sequence", allocationSize = 50)`.
+**TODO 3, TODO 4, and TODO 5: Annotate the `id` field with a sequence generator**
+Add `@Id` (TODO 3), then `@GeneratedValue(strategy = GenerationType.SEQUENCE,
+generator = "order_seq")` (TODO 4), plus a matching `@SequenceGenerator(name =
+"order_seq", sequenceName = "order_sequence", allocationSize = 50)` (TODO 5).
 SEQUENCE pre-allocates ids in batches so Hibernate can defer INSERTs
 until flush.
 
 ### Part 3: Lifecycle Walkthrough
 
-Open `LifecycleTest.java`.
-
-**TODO 3: Observe and assert lifecycle transitions**
-The test scaffolding is provided. Read through and confirm:
+Open `LifecycleTest.java`. The test is complete, no TODO here. Read
+through it and confirm you can see each lifecycle transition:
 - A new entity is `transient` until persist
 - After persist with IDENTITY, an INSERT has already fired
 - After persist with SEQUENCE, no INSERT until flush or commit
@@ -75,8 +73,8 @@ The SQL log shows the difference in INSERT timing between strategies.
 
 ## What's Included
 
-- `Customer.java` with TODO 1 (IDENTITY)
-- `Order.java` with TODO 2 (SEQUENCE)
+- `Customer.java` with TODOs 1-2 (IDENTITY)
+- `Order.java` with TODOs 3-5 (SEQUENCE)
 - `LifecycleTest.java`, pre-written with the walkthrough
 - `application.yml` with SQL logging on
 - H2 in-memory database (no Postgres needed for this exercise)
