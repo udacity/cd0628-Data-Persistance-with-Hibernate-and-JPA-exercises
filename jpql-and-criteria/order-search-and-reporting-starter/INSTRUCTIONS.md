@@ -73,7 +73,7 @@ Expected output ends with:
 - `OrderSearchService.java` with TODO 2 (the EntityManager is wired)
 - `Customer.java` and `Order.java`, complete
 - `TopCustomerDto.java`, complete (the DTO for the projection)
-- `OrderSearchCriteria.java`, complete (4 optional fields)
+- `OrderSearchCriteria.java`, complete (5 optional fields)
 - `QueryTest.java`, pre-written
 - `schema.sql` and `data.sql` (50 customers, 500 orders across 2 years)
 - `application.yml` with SQL logging on
