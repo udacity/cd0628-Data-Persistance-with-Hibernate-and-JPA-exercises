@@ -93,8 +93,9 @@ SQL logs show `SELECT ... FOR NO KEY UPDATE` for the pessimistic case.
 - `BookRepository.java` with TODO 2
 - `BookInventoryService.java` with TODOs 3-4
 - `BookNotFoundException.java` and `OutOfStockException.java`, complete
-- `RetryConfig.java`, complete (enables Spring Retry; the retry logic
-  is the @Retryable on BookInventoryService.updateDescription)
+- `RetryConfig.java`, complete (an empty placeholder; @EnableRetry is
+  on Application.java and the retry logic is the @Retryable on
+  BookInventoryService.updateDescription)
 - `ConcurrencyTest.java`, pre-written using ExecutorService
 - `schema.sql` and `data.sql` (books with varying stock levels,
   including some with stock=1 for the pessimistic test)
