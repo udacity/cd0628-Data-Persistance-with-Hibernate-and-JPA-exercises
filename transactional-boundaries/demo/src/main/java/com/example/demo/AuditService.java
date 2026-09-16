@@ -22,6 +22,6 @@ public class AuditService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void record(String action, String detail) {
         auditRepo.save(new AuditLog(action, detail));
-        System.out.println("  [AUDIT committed in its own transaction] " + action + ": " + detail);
+        System.out.println("  [AUDIT written in its own transaction] " + action + ": " + detail);
     }
 }
