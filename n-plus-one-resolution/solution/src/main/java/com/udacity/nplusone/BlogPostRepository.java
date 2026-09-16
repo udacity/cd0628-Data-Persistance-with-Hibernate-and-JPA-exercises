@@ -8,9 +8,10 @@ import java.util.List;
 
 public interface BlogPostRepository extends JpaRepository<BlogPost, Long> {
 
-    // JOIN FETCH approach. DISTINCT prevents duplicate parent rows
-    // when one post has multiple comments. Result: ONE query.
-    @Query("SELECT DISTINCT p FROM BlogPost p JOIN FETCH p.comments")
+    // LEFT JOIN FETCH approach. LEFT keeps posts that have no comments;
+    // DISTINCT prevents duplicate parent rows when one post has
+    // multiple comments. Result: ONE query.
+    @Query("SELECT DISTINCT p FROM BlogPost p LEFT JOIN FETCH p.comments")
     List<BlogPost> findAllWithJoinFetch();
 
     // EntityGraph approach. Spring Data combines the graph with the

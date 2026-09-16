@@ -6,15 +6,17 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface BlogPostRepository extends JpaRepository<BlogPost, Long> {
-
+    
     // ============================================================
-    // TODO 1: Implement using JPQL JOIN FETCH.
+    // TODO 1: Implement using JPQL LEFT JOIN FETCH.
     //
     // Annotate this method with:
-    //   @Query("SELECT DISTINCT p FROM BlogPost p JOIN FETCH p.comments")
+    //   @Query("SELECT DISTINCT p FROM BlogPost p LEFT JOIN FETCH p.comments")
     //
-    // DISTINCT prevents duplicate parent rows when one post has
-    // multiple comments. Result: exactly ONE query.
+    // The LEFT matters: a plain JOIN FETCH is an inner join and would
+    // drop any post that has no comments. DISTINCT prevents duplicate
+    // parent rows when one post has multiple comments. Result: exactly
+    // ONE query.
     // ============================================================
     List<BlogPost> findAllWithJoinFetch();
 
